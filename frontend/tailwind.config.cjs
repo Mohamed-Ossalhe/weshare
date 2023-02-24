@@ -9,6 +9,13 @@ module.exports = {
     extend: {
       colors: {
         'secondary' : "#00FFEF"
+      },
+      fontFamily: {
+        'montserrat': "montserrat"
+      },
+      backgroundImage: {
+        'log-in': "url(./src/assets/images/log-in.jpg)",
+        'sign-up': "url(./src/assets/images/sign-up.jpg)"
       }
     },
   },
