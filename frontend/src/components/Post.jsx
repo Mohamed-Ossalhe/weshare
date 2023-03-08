@@ -1,7 +1,57 @@
-import { useState } from "react"
+import {useEffect, useState} from "react"
+import {Link} from "react-router-dom";
 
-const Post = ({ isDarkMode }) => {
+const Post = ({ isDarkMode, date, title, body }) => {
     const [ toggle, setToggle ] = useState(false)
+    const [elapsedTime, setElapsedTime] = useState('')
+    const [ dropDown, setDropdown] = useState(false)
+
+    useEffect(() => {
+        // Update the elapsed time every minute
+        const intervalId = setInterval(() => {
+            // Get the current date and time
+            const now = new Date();
+
+            // Post Date
+            //const postDate = new Date(date)
+
+            // Calculate the difference in milliseconds between the current date/time and the post date/time
+            const timeDiff = now.getTime() - date.getTime();
+
+            // Convert the time difference to seconds, minutes, hours, days, etc. as needed
+            const secondsDiff = Math.floor(timeDiff / 1000);
+            const minutesDiff = Math.floor(timeDiff / 1000 / 60);
+            const hoursDiff = Math.floor(timeDiff / 1000 / 60 / 60);
+            const daysDiff = Math.floor(timeDiff / 1000 / 60 / 60 / 24);
+
+            // Choose the appropriate time unit to display
+            let unit = '';
+            let value = 0;
+            if (daysDiff > 0) {
+                unit = 'day';
+                value = daysDiff;
+            } else if (hoursDiff > 0) {
+                unit = 'hour';
+                value = hoursDiff;
+            } else if (minutesDiff > 0) {
+                unit = 'minute';
+                value = minutesDiff;
+            } else {
+                unit = 'second';
+                value = secondsDiff;
+            }
+
+            // Add "s" to the end of the unit if the value is not 1
+            if (value !== 1) {
+                unit += 's';
+            }
+            // Update the elapsed time state variable with the new value
+            setElapsedTime(`${value} ${unit} ago`);
+        }, 1000);
+
+        // Clean up the interval when the component unmounts
+        return () => clearInterval(intervalId);
+    }, []);
     return (
         <div className="w-full">
             <div href="#" className={isDarkMode ? "flex flex-col items-center bg-slate-800 border  px-2 border-gray-700 rounded-lg shadow md:max-w-xl hover:bg-slate-900" : "flex flex-col items-center bg-white border  px-2 border-gray-200 rounded-lg shadow md:max-w-xl hover:bg-gray-100"}>
@@ -10,33 +60,26 @@ const Post = ({ isDarkMode }) => {
                         <img className="w-12 h-12 rounded-full shadow-lg border-2 border-secondary" src="https://randomuser.me/api/portraits/men/63.jpg" alt="Bonnie image"/>
                         <div className="profile-name flex flex-col">
                             Username
-                            <span className="text-sm">@username</span>
+                            <span className="text-sm">{elapsedTime}</span>
                         </div>
                     </div>
-                    <div className="post-menu">
-                            <button id="dropdownMenuIconButton" data-dropdown-toggle="dropdownDots" className={isDarkMode ? "inline-flex items-center p-2 text-sm font-medium text-center rounded-lg focus:ring-4 focus:outline-none text-white bg-gray-800 hover:bg-gray-700 focus:ring-gray-600" : "inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50"} type="button"> 
-                                <svg className="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
-                            </button>
-                            <div id="dropdownDots" className={isDarkMode ? "z-10 hidden divide-y rounded-lg shadow w-44 bg-gray-700 divide-gray-600" : "z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44"}>
-                                <ul className={isDarkMode ? "py-2 text-sm text-gray-200" : "py-2 text-sm text-gray-700"} aria-labelledby="dropdownMenuIconButton">
-                                    <li>
-                                        <a href="#" className={isDarkMode ? "block px-4 py-2 hover:bg-gray-600 hover:text-white" : "block px-4 py-2 hover:bg-gray-100"}>Dashboard</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" className={isDarkMode ? "block px-4 py-2 hover:bg-gray-600 hover:text-white" : "block px-4 py-2 hover:bg-gray-100"}>Settings</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" className={isDarkMode ? "block px-4 py-2 hover:bg-gray-600 hover:text-white" : "block px-4 py-2 hover:bg-gray-100"}>Earnings</a>
-                                    </li>
-                                </ul>
-                            </div>
+                    <div className="post-menu relative">
+                        <button id="show-post-dropdown" onClick={() => setDropdown(!dropDown)} className="text-xl p-2"><i className='bx bx-dots-horizontal-rounded'></i></button>
+                        <div id="post-dropdown" className={dropDown ? "absolute right-0 p-2 bg-secondary text-white rounded" : "absolute hidden right-0 p-2 bg-secondary text-white rounded"}>
+                            <ul className="">
+                                <li className="pr-20"><a href="#">Edit</a></li>
+                                <li className="pr-20"><a href="#">Share</a></li>
+                                <li className="pr-20"><a href="#">View</a></li>
+                                <li className="pr-20"><a href="#">Delete</a></li>
+                            </ul>
                         </div>
+                    </div>
                 </header>
                 <img className="object-cover w-full h-96 md:h-60 rounded-t-lg" src="https://via.placeholder.com/300" alt="" />
-                <div className="flex flex-col justify-between p-4 leading-normal">
-                    <h5 className={isDarkMode ? "mb-2 text-lg font-bold tracking-tight text-white" : "mb-2 text-lg font-bold tracking-tight text-gray-900"}>Noteworthy technology acquisitions 2021</h5>
-                    <p className={isDarkMode ? "mb-2 font-normal text-gray-400" : "mb-2 font-normal text-gray-700"}>Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order...</p>
-                    <span>Read More...</span>
+                <div className="flex flex-col justify-between w-full p-4 leading-normal">
+                    <h5 className={isDarkMode ? "mb-2 text-lg font-bold tracking-tight text-white" : "mb-2 text-lg font-bold tracking-tight text-gray-900"}>{title}</h5>
+                    <p className={isDarkMode ? "mb-2 font-normal text-gray-400" : "mb-2 font-normal text-gray-700"}>{body}</p>
+                    <Link to={"/post/" + title}>Read More...</Link>
                 </div>
                 <div className="post-info w-full flex items-center justify-end px-5">
                     <div className="info-wrapper flex items-center gap-4">
