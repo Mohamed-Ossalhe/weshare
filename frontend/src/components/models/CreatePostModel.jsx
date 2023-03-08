@@ -1,9 +1,31 @@
+import ImageInput from "../ImageInput.jsx";
+import {useRef, useState} from "react";
+import axios from "axios";
+
 const CreatePostModel = ({ fire, setFire, isDarkMode }) => {
+    const titleRef = useRef()
+    const descriptionRef = useRef()
+    const userId = 1
+    const [ errors, setErrors ] = useState(null)
+    const submitForm = async (e) => {
+        e.preventDefault()
+        const postData = {
+            title: titleRef.current.value,
+            description: descriptionRef.current.value,
+            user_id: userId
+        }
+        await axios.post('http://127.0.0.1:8000/api/posts', postData)
+            .then((response) => {
+                console.log(response)
+                setFire(false)
+            })
+            .catch((error) => console.log(error))
+    }
     if(fire) {
         return (
         <div id="staticModal" data-modal-backdrop="static" tabIndex="-1" className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center bg-black/30 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full">
-            <div className="relative w-full h-full max-w-2xl md:h-auto">
-                <div className={isDarkMode ? "relative rounded-lg shadow bg-gray-700" : "relative bg-white rounded-lg shadow"}>
+            <div className="relative flex items-center justify-center w-full h-full max-w-2xl md:h-auto">
+                <form method="post" onSubmit={submitForm} className={isDarkMode ? "relative rounded-lg shadow bg-gray-700 w-full" : "relative bg-white rounded-lg shadow w-full"}>
                     <div className={isDarkMode ? "flex items-start justify-between p-4 border-b rounded-t border-gray-600" : "flex items-start justify-between p-4 border-b rounded-t"}>
                         <h3 className={isDarkMode ? "text-xl font-semibold text-white" : "text-xl font-semibold text-gray-900"}>
                             New Idea
@@ -13,13 +35,18 @@ const CreatePostModel = ({ fire, setFire, isDarkMode }) => {
                         </button>
                     </div>
                     <div className="p-6 space-y-6">
-                        
+                        <input ref={titleRef} className="w-full border rounded" type="text" placeholder="Idea Title..."/>
+                        <textarea ref={descriptionRef} id="message" rows="5"
+                                  className={isDarkMode ? "block p-2.5 w-full text-sm text-white rounded-lg bg-gray-700 border-gray-600 placeholder-gray-400 text-white" : "block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg"}
+                                  placeholder="Write your Idea Here...">
+                        </textarea>
+                        <ImageInput />
                     </div>
                     <div className={isDarkMode ? "flex items-center p-6 space-x-2 border-t rounded-b border-gray-600" : "flex items-center p-6 space-x-2 border-t rounded-b border-gray-600"}>
-                        <button data-modal-hide="staticModal" type="button" className={isDarkMode ? "text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-800" : "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"}>I accept</button>
-                        <button data-modal-hide="staticModal" onClick={() => setFire(false)} type="button" className={isDarkMode ? "focus:ring-4 focus:outline-none rounded-lg border text-sm font-medium px-5 py-2.5 focus:z-10 bg-gray-700 text-gray-300 border-gray-500 hover:text-white hover:bg-gray-600 focus:ring-gray-600" : "text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"}>Decline</button>
+                        <button data-modal-hide="staticModal" type="submit" className={isDarkMode ? "text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-800" : "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"}>Post Idea</button>
+                        <button data-modal-hide="staticModal" onClick={() => setFire(false)} type="button" className={isDarkMode ? "focus:ring-4 focus:outline-none rounded-lg border text-sm font-medium px-5 py-2.5 focus:z-10 bg-gray-700 text-gray-300 border-gray-500 hover:text-white hover:bg-gray-600 focus:ring-gray-600" : "text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"}>Discard</button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
         )

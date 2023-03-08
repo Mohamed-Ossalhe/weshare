@@ -1,8 +1,12 @@
 import logo from '../assets/images/logo-black2.svg'
 import logoWhite from '../assets/images/logo-white.svg'
 import { Link } from 'react-router-dom';
+import { useRef } from 'react';
 
 const SignupPage = () => {
+    const nameRef = useRef()
+    const emailRef = useRef()
+    const passwordRef = useRef()
     return (
         <div className="login-page h-screen relative overflow-hidden font-montserrat">
             <div className="content container mx-auto pl-4 md:pl-20 grid gap-8 grid-cols-1 md:grid-cols-4 h-full relative w-full">
