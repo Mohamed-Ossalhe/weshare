@@ -1,10 +1,18 @@
 import {useEffect, useState} from "react"
 import {Link} from "react-router-dom";
+import UpdatePostModel from "./models/updatePostModel.jsx";
+import Like from "./Like.jsx";
+// Import Swiper React components
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
+import {Autoplay, Pagination} from "swiper";
 
-const Post = ({ isDarkMode, date, title, body }) => {
-    const [ toggle, setToggle ] = useState(false)
+const Post = ({ isDarkMode, id, date, title, body, images, likes, comments }) => {
     const [elapsedTime, setElapsedTime] = useState('')
     const [ dropDown, setDropdown] = useState(false)
+    // show update modal
+    const [ PostModel, setPostModel ] = useState(false)
 
     useEffect(() => {
         // Update the elapsed time every minute
@@ -37,23 +45,23 @@ const Post = ({ isDarkMode, date, title, body }) => {
                 unit = 'minute';
                 value = minutesDiff;
             } else {
-                unit = 'second';
-                value = secondsDiff;
+                unit = 'Just now';
+                value = '';
             }
 
             // Add "s" to the end of the unit if the value is not 1
-            if (value !== 1) {
+            if (value !== 1 && value !== '') {
                 unit += 's';
             }
             // Update the elapsed time state variable with the new value
-            setElapsedTime(`${value} ${unit} ago`);
+            setElapsedTime(`${value} ${unit}`);
         }, 1000);
 
         // Clean up the interval when the component unmounts
         return () => clearInterval(intervalId);
     }, []);
     return (
-        <div className="w-full">
+        <div className="w-full post" id={id}>
             <div href="#" className={isDarkMode ? "flex flex-col items-center bg-slate-800 border  px-2 border-gray-700 rounded-lg shadow md:max-w-xl hover:bg-slate-900" : "flex flex-col items-center bg-white border  px-2 border-gray-200 rounded-lg shadow md:max-w-xl hover:bg-gray-100"}>
                 <header className="w-full flex items-center justify-between px-2 py-2">
                     <div className="post-profile flex items-center gap-2">
@@ -67,7 +75,7 @@ const Post = ({ isDarkMode, date, title, body }) => {
                         <button id="show-post-dropdown" onClick={() => setDropdown(!dropDown)} className="text-xl p-2"><i className='bx bx-dots-horizontal-rounded'></i></button>
                         <div id="post-dropdown" className={dropDown ? "absolute right-0 p-2 bg-secondary text-white rounded" : "absolute hidden right-0 p-2 bg-secondary text-white rounded"}>
                             <ul className="">
-                                <li className="pr-20"><a href="#">Edit</a></li>
+                                <li className="pr-20 cursor-pointer" onClick={() => setPostModel(true)}>Edit</li>
                                 <li className="pr-20"><a href="#">Share</a></li>
                                 <li className="pr-20"><a href="#">View</a></li>
                                 <li className="pr-20"><a href="#">Delete</a></li>
@@ -75,25 +83,32 @@ const Post = ({ isDarkMode, date, title, body }) => {
                         </div>
                     </div>
                 </header>
-                <img className="object-cover w-full h-96 md:h-60 rounded-t-lg" src="https://via.placeholder.com/300" alt="" />
+
+                <Swiper pagination={{dynamicBullets: true}} autoplay={true} speed={2500} loop={true} modules={[Pagination, Autoplay]} className="mySwiper w-full">
+                    {images && images.map((image) => {
+                        return <SwiperSlide key={image.id}><img className="object-cover w-full h-96 md:h-60 rounded-t-lg" alt="post image" src={`http://127.0.0.1:8000/storage/postImages/${image.content}`}/></SwiperSlide>
+                    })}
+                </Swiper>
+
+                {/*<img className="object-cover w-full h-96 md:h-60 rounded-t-lg" src="https://via.placeholder.com/300" alt="" />*/}
                 <div className="flex flex-col justify-between w-full p-4 leading-normal">
                     <h5 className={isDarkMode ? "mb-2 text-lg font-bold tracking-tight text-white" : "mb-2 text-lg font-bold tracking-tight text-gray-900"}>{title}</h5>
-                    <p className={isDarkMode ? "mb-2 font-normal text-gray-400" : "mb-2 font-normal text-gray-700"}>{body}</p>
-                    <Link to={"/post/" + title}>Read More...</Link>
+                    <p className={isDarkMode ? "mb-2 font-normal text-gray-400 truncate" : "mb-2 font-normal text-gray-700 truncate"}>{body}</p>
+                    <Link to={`/post/${title}`} className="w-fit">Read More...</Link>
                 </div>
                 <div className="post-info w-full flex items-center justify-end px-5">
                     <div className="info-wrapper flex items-center gap-4">
-                        <button className="likes flex items-center gap-1 cursor-pointer" onClick={() => setToggle(!toggle)}>
-                            <i className={toggle ? ('bx bx-like text-secondary text-2xl'): (isDarkMode ? 'bx bx-like text-white text-2xl' : 'bx bx-like text-black text-2xl')}></i>
-                            <p>200</p>
-                        </button>
-                        <button className="comments flex items-center gap-1 cursor-pointer">
-                            <i className='bx bx-comment text-2xl'></i>
-                            <p>200</p>
-                        </button>
+                        <Like isDarkMode={isDarkMode} likes={likes} postId={id}/>
+                        <Link to={`/post/${title}`}>
+                            <button className="comments flex items-center gap-1 cursor-pointer">
+                                <i className='bx bx-comment text-2xl'></i>
+                                <p>{comments.length}</p>
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </div>
+            {PostModel && <UpdatePostModel fire={PostModel} setFire={setPostModel} isDarkMode={isDarkMode} postId={id} title={title} />}
         </div>
     )
 }

@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+a.active {
+    position: relative;
+    color: #6D67E4;
+}
+a.active::after {
+    position: absolute;
+    bottom: -1rem;
+    left: 0;
+    content: "";
+    height: 2px;
+    width: 100%;
+    background-color: #6D67E4;
+}

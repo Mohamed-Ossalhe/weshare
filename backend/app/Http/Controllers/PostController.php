@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Post;
+use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -13,7 +15,7 @@ class PostController extends Controller
      */
     public function index(): Response
     {
-        $posts = Post::all();
+        $posts = Post::with('images', 'likes', 'comments')->orderBy('updated_at', 'desc')->get();
         return response($posts, 201);
     }
 
@@ -22,7 +24,7 @@ class PostController extends Controller
      */
     public function indexLimitThree(): Response
     {
-        $posts = Post::orderBy('created_at', 'desc')
+        $posts = Post::orderBy('updated_at', 'desc')
             ->take(3)
             ->get();
         return response($posts, 201);
@@ -33,21 +35,56 @@ class PostController extends Controller
      */
     public function store(Request $request): Response
     {
-        $request->validate([
+
+
+        $formData = $request->validate([
             'title' => 'required',
             'description' => 'required',
-            'user_id' => 'required'
+            'user_id' => 'required',
+            'category_id' => 'required',
+            'image' => 'required'
         ]);
-        $post = Post::create($request->all());
-        return response($post, 201);
+
+        $formData['category_id']=explode(',',$formData['category_id']);
+        $post = Post::create(['title' => $request->title, 'description' => $request->description, 'user_id' => $request->user_id]);
+        $post->category()->attach($formData['category_id']);
+        $images = $formData['image'];
+        foreach ($images as $image) {
+            $file = $image->store('public/postImages');
+            $filename = explode("/", $file);
+            $postImages = Image::create(['content' => $filename[2], 'post_id' => $post->id]);
+        }
+        return response($formData, 201);
+//        $formData = $request->validate([
+//            'title' => 'required',
+//            'description' => 'required',
+//            'user_id' => 'required',
+//            'category_id' => 'required',
+//            'image' => 'required'
+//        ]);
+//
+//        $formData['category_id']=explode(',',$formData['category_id']);
+//        $post = Post::create($formData);
+//        $post->category()->attach($formData['category_id']);
+//        $images = $formData['image'];
+//        foreach ($images as $image) {
+//            $file = $image->store('public/postImages');
+//            $filename = explode("/", $file);
+//            $postImages = Image::create(['content' => $filename[2], 'post_id' => $post->id]);
+//        }
+//        return response($post, 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id): Response
+    public function show(string $title): Response
     {
-
+        $post = Post::with('images')->where("title", $title)->first();
+        if(!$post) {
+            return response(["message" => "Post Not Found!"], 404);
+        }
+        return response($post, 201);
     }
 
     /**
@@ -56,7 +93,12 @@ class PostController extends Controller
     public function update(Request $request, string $id): Response
     {
         $post = Post::find($id);
-        $post->update($request->all());
+        $formData = $request->validate([
+            'title' => 'required',
+            'description' => 'required',
+            'user_id' => 'required'
+        ]);
+        $post->update($formData);
         return response($post, 201);
     }
 
@@ -65,6 +107,6 @@ class PostController extends Controller
      */
     public function destroy(string $id): Response
     {
-        //
+        $post = Post::find($id);
     }
 }
