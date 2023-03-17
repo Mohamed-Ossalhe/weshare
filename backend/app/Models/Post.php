@@ -11,6 +11,21 @@ class Post extends Model
     protected $fillable = [
         'title',
         'description',
-        'user_id'
+        'user_id',
+        'category_id',
+        'image',
     ];
+
+    public function category() {
+        return $this->belongsToMany(Category::class,'post_categories', 'post_id', 'category_id');
+    }
+    public function images() {
+        return $this->hasMany(Image::class);
+    }
+    public function likes() {
+        return $this->hasMany(Like::class);
+    }
+    public function comments() {
+        return $this->hasMany(Comment::class);
+    }
 }
