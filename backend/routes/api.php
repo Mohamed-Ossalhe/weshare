@@ -3,6 +3,7 @@
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,3 +31,5 @@ Route::resource('category', CategoryController::class);
 // Like Routes
 Route::post('/like', [LikeController::class, 'store']);
 Route::get('/like/{user_id}/{post_id}', [LikeController::class, 'show']);
+// Comments Routes
+Route::post('/comment', [CommentController::class, 'store']);

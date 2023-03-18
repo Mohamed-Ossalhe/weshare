@@ -33,7 +33,7 @@ class LikeController extends Controller
             ->first();
         if($likeExists) {
             $likeExists->delete();
-            return back();
+            return response('like removed', 201);
         }
         $like = Like::create($data);
         return response($like, 201);

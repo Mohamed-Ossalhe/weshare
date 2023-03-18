@@ -3,6 +3,7 @@ import {useEffect, useRef, useState} from "react";
 import axios from "axios";
 
 const UpdatePostModel = ({ fire, setFire, isDarkMode, postId, title }) => {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const titleRef = useRef()
     const descriptionRef = useRef()
     const [ image, setImage ] = useState([])
@@ -21,7 +22,7 @@ const UpdatePostModel = ({ fire, setFire, isDarkMode, postId, title }) => {
         formData.append('description', descriptionRef.current.value)
         formData.append('user_id', userId)
         console.log(formData)
-        await axios.patch(`http://127.0.0.1:8000/api/posts/` + postId, postData)
+        await axios.patch(`${API_BASE_URL}/api/posts/` + postId, postData)
             .then(response => {
                 console.log(response)
                 setFire(false)
@@ -29,7 +30,7 @@ const UpdatePostModel = ({ fire, setFire, isDarkMode, postId, title }) => {
             .catch(error => console.log(error))
     }
     const getPostData = async (title) => {
-        await axios.get('http://127.0.0.1:8000/api/posts/' + title)
+        await axios.get(`${API_BASE_URL}/api/posts/` + title)
             .then(({data}) => {
                 //console.log(data)
                 console.log(data)

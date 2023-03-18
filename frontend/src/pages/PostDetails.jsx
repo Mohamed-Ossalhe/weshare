@@ -6,22 +6,27 @@ import ProfileCard from "../components/ProfileCard.jsx";
 import Comment from "../components/Comment.jsx";
 import {Pagination, Autoplay} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
+import CommentModal from "../components/models/CommentModal.jsx";
 
 const PostDetails = () => {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const {title} = useParams()
     const [isDarkMode, setDarkMode] = useState(JSON.parse(localStorage.getItem('mode')))
     const [ postData, setPostData ] = useState(null)
     const [ isLoading, setIsLoading ] = useState(false)
-    useEffect(() => {
-        setIsLoading(true)
-        axios.get('http://127.0.0.1:8000/api/posts/' + title)
+    const postDetails = async () => {
+        await axios.get(`${API_BASE_URL}/api/posts/` + title)
             .then(({data}) => {
                 setPostData(data)
                 setIsLoading(false)
             })
             .catch((error) => console.log(error))
+    }
+    useEffect(() => {
+        setIsLoading(true)
+        postDetails()
     },[])
-    console.log(postData)
+    //console.log(postData)
     const handleDarkMode = () => {
         setDarkMode(!isDarkMode)
         localStorage.setItem('mode', JSON.stringify(!isDarkMode))
@@ -127,8 +132,12 @@ const PostDetails = () => {
                             <div className="likes"></div>
                             <div className="comments mt-10">
                                 <h1 className="flex items-center justify-between w-full text-xl text-secondary">FeedBacks: <hr className="w-4/5 bg-secondary border-none h-1"/></h1>
-                                <Comment isDarkMode={isDarkMode} />
-                                <Comment isDarkMode={isDarkMode}/>
+                                {postData && postData.comments.map((comment) => {
+                                    return <Comment key={comment.id} isDarkMode={isDarkMode} comment={comment.content} />
+                                })}
+                            </div>
+                            <div className="comment-modal">
+                                <CommentModal isDarkMode={isDarkMode} reGetData={postDetails} postId={postData && postData.id}/>
                             </div>
                         </div>
                     </div>

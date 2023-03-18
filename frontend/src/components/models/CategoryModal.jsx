@@ -2,14 +2,14 @@ import axios from "axios";
 import {useRef} from "react";
 
 const CategoryModal = ({isCalled, setCall, isDarkMode}) => {
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const categoryTitleRef = useRef()
     const onSubmit = async (e) => {
         e.preventDefault()
         const data = {
             'title': categoryTitleRef.current.value
         }
-        await axios.post('http://127.0.0.1:8000/api/category', data)
+        await axios.post(`${API_BASE_URL}/api/category`, data)
             .then((response) => {
                 console.log(response)
                 setCall(false)
