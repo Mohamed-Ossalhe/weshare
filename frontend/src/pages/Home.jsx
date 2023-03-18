@@ -8,6 +8,7 @@ import axios from "axios";
 import {Link} from "react-router-dom";
 
 const Home = () => {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const [ posts, setPosts ] = useState([])
     const [ recentPosts, setRecentPosts ] = useState([])
     const [ isDarkMode, setDarkMode ] = useState(JSON.parse(localStorage.getItem('mode')))
@@ -21,28 +22,29 @@ const Home = () => {
         localStorage.setItem('mode',JSON.stringify(!isDarkMode))
     }
 
+    const fetchAllPosts = async () => {
+        await axios.get( `${API_BASE_URL}/api/posts`)
+            .then((response) => {
+                const {data} = response
+                setPosts(data)
+                setLoading(false)
+            }).catch((error) => {
+                console.log(error)
+            });
+    }
+    const fetchRecentPosts = async () => {
+        await axios.get(`${API_BASE_URL}/api/recent-posts`)
+            .then((response) => {
+                const {data} = response
+                setRecentPosts(data)
+                setLoading(false)
+            }).catch((error) => {
+                console.log(error)
+            })
+    }
+
     useEffect(() => {
         setLoading(true)
-        const fetchAllPosts = async () => {
-            await axios.get('http://127.0.0.1:8000/api/posts')
-                .then((response) => {
-                    const {data} = response
-                    setPosts(data)
-                    setLoading(false)
-                }).catch((error) => {
-                    console.log(error)
-                });
-        }
-        const fetchRecentPosts = async () => {
-            await axios.get('http://127.0.0.1:8000/api/recent-posts')
-                .then((response) => {
-                    const {data} = response
-                    setRecentPosts(data)
-                    setLoading(false)
-                }).catch((error) => {
-                    console.log(error)
-                })
-        }
         fetchAllPosts()
         fetchRecentPosts()
     }, [])
@@ -68,7 +70,7 @@ const Home = () => {
                         </div>
                     </div>}
                     {recentPosts && recentPosts.map((recentPost) => {
-                        return <Link key={recentPost.id} to={`/post/${recentPost.title}`}><SmallPost isDarkMode={isDarkMode} title={recentPost.title} body={recentPost.description}/></Link>
+                        return <Link key={recentPost.id} to={`/post/${recentPost.title}`}><SmallPost isDarkMode={isDarkMode} props={recentPost}/></Link>
                     })}
                 </div>
                 <div className="col col-span-2">
@@ -91,7 +93,7 @@ const Home = () => {
                         </div>}
                         {posts && posts.map((post) => {
                             const postDate = new Date(post.updated_at)
-                            return <Post key={post.id} isDarkMode={isDarkMode} id={post.id} date={postDate} title={post.title} body={post.description} images={post.images} likes={post.likes} comments={post.comments}/>
+                            return <Post key={post.id} reGetData={fetchAllPosts} isDarkMode={isDarkMode} id={post.id} date={postDate} title={post.title} body={post.description} images={post.images} likes={post.likes} comments={post.comments}/>
                         })}
                     </div>
                 </div>

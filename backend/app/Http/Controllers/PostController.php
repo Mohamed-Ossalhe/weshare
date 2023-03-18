@@ -24,7 +24,7 @@ class PostController extends Controller
      */
     public function indexLimitThree(): Response
     {
-        $posts = Post::orderBy('updated_at', 'desc')
+        $posts = Post::with('images', 'likes', 'comments')->orderBy('updated_at', 'desc')
             ->take(3)
             ->get();
         return response($posts, 201);
@@ -80,7 +80,7 @@ class PostController extends Controller
      */
     public function show(string $title): Response
     {
-        $post = Post::with('images')->where("title", $title)->first();
+        $post = Post::with('images', 'likes', 'comments')->where("title", $title)->first();
         if(!$post) {
             return response(["message" => "Post Not Found!"], 404);
         }

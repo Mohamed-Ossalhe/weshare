@@ -4,6 +4,7 @@ import axios from "axios";
 import CategoryModal from "./CategoryModal.jsx";
 
 const CreatePostModel = ({ fire, setFire, isDarkMode }) => {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const titleRef = useRef()
     const descriptionRef = useRef()
     const categoryRef = useRef()
@@ -16,7 +17,7 @@ const CreatePostModel = ({ fire, setFire, isDarkMode }) => {
 
     useEffect(() => {
         const getCategories = async () => {
-            await axios.get('http://127.0.0.1:8000/api/category')
+            await axios.get(`${API_BASE_URL}/api/category`)
                 .then(({data}) => {
                     setCategories(data)
                 }).catch((error) => {
@@ -48,7 +49,7 @@ const CreatePostModel = ({ fire, setFire, isDarkMode }) => {
         }
         console.log(categoriesSelected)
         console.log(formData)
-        await axios.post('http://127.0.0.1:8000/api/posts', formData, {headers: {
+        await axios.post(`${API_BASE_URL}/api/posts`, formData, {headers: {
                 'Content-Type': 'multipart/form-data'
             }})
             .then((response) => {

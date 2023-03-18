@@ -7,10 +7,10 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import {Autoplay, Pagination} from "swiper";
+import DropDownMenu from "./DropDownMenu.jsx";
 
-const Post = ({ isDarkMode, id, date, title, body, images, likes, comments }) => {
+const Post = ({ isDarkMode, id, date, title, body, images, likes, comments, reGetData }) => {
     const [elapsedTime, setElapsedTime] = useState('')
-    const [ dropDown, setDropdown] = useState(false)
     // show update modal
     const [ PostModel, setPostModel ] = useState(false)
 
@@ -71,17 +71,7 @@ const Post = ({ isDarkMode, id, date, title, body, images, likes, comments }) =>
                             <span className="text-sm">{elapsedTime}</span>
                         </div>
                     </div>
-                    <div className="post-menu relative">
-                        <button id="show-post-dropdown" onClick={() => setDropdown(!dropDown)} className="text-xl p-2"><i className='bx bx-dots-horizontal-rounded'></i></button>
-                        <div id="post-dropdown" className={dropDown ? "absolute right-0 p-2 bg-secondary text-white rounded" : "absolute hidden right-0 p-2 bg-secondary text-white rounded"}>
-                            <ul className="">
-                                <li className="pr-20 cursor-pointer" onClick={() => setPostModel(true)}>Edit</li>
-                                <li className="pr-20"><a href="#">Share</a></li>
-                                <li className="pr-20"><a href="#">View</a></li>
-                                <li className="pr-20"><a href="#">Delete</a></li>
-                            </ul>
-                        </div>
-                    </div>
+                    <DropDownMenu setPostModel={setPostModel} />
                 </header>
 
                 <Swiper pagination={{dynamicBullets: true}} autoplay={true} speed={2500} loop={true} modules={[Pagination, Autoplay]} className="mySwiper w-full">
@@ -98,7 +88,7 @@ const Post = ({ isDarkMode, id, date, title, body, images, likes, comments }) =>
                 </div>
                 <div className="post-info w-full flex items-center justify-end px-5">
                     <div className="info-wrapper flex items-center gap-4">
-                        <Like isDarkMode={isDarkMode} likes={likes} postId={id}/>
+                        <Like isDarkMode={isDarkMode} reGetData={reGetData} likes={likes} postId={id}/>
                         <Link to={`/post/${title}`}>
                             <button className="comments flex items-center gap-1 cursor-pointer">
                                 <i className='bx bx-comment text-2xl'></i>
