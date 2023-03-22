@@ -1,6 +1,7 @@
 import logo from '../assets/images/logo-black2.svg'
 import whiteLogo from '../assets/images/logo-white.svg'
 import {Link, NavLink} from "react-router-dom";
+import SearchModal from "./models/SearchModal.jsx";
 
 const Navbar = ({ isDarkMode, onToggle }) => {
     return (
@@ -12,23 +13,7 @@ const Navbar = ({ isDarkMode, onToggle }) => {
                         <Link to="/" className="flex items-center">
                             <img src={isDarkMode ? whiteLogo : logo} className="h-13 mr-3" alt="Flowbite Logo" />
                         </Link>
-                        <form className="w-full">
-                            <label htmlFor="default-search"
-                                   className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                    <svg aria-hidden="true" className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                                         fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                         xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                    </svg>
-                                </div>
-                                <input type="search" id="default-search"
-                                       className={isDarkMode ? "block w-full p-3 pl-10 text-sm border rounded-lg bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" : "block w-full p-3 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"}
-                                       placeholder="Search Posts..." required />
-                            </div>
-                        </form>
+                        <SearchModal isDarkMode={isDarkMode} />
                     </div>
                     <button data-collapse-toggle="navbar-default" type="button" className="inline-flex items-center p-2 ml-3 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
                         <span className="sr-only">Open main menu</span>

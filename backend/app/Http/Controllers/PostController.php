@@ -35,8 +35,6 @@ class PostController extends Controller
      */
     public function store(Request $request): Response
     {
-
-
         $formData = $request->validate([
             'title' => 'required',
             'description' => 'required',
@@ -55,24 +53,6 @@ class PostController extends Controller
             $postImages = Image::create(['content' => $filename[2], 'post_id' => $post->id]);
         }
         return response($formData, 201);
-//        $formData = $request->validate([
-//            'title' => 'required',
-//            'description' => 'required',
-//            'user_id' => 'required',
-//            'category_id' => 'required',
-//            'image' => 'required'
-//        ]);
-//
-//        $formData['category_id']=explode(',',$formData['category_id']);
-//        $post = Post::create($formData);
-//        $post->category()->attach($formData['category_id']);
-//        $images = $formData['image'];
-//        foreach ($images as $image) {
-//            $file = $image->store('public/postImages');
-//            $filename = explode("/", $file);
-//            $postImages = Image::create(['content' => $filename[2], 'post_id' => $post->id]);
-//        }
-//        return response($post, 201);
     }
 
     /**
@@ -108,5 +88,20 @@ class PostController extends Controller
     public function destroy(string $id): Response
     {
         $post = Post::find($id);
+    }
+
+    /**
+     * Search the specified resource from storage
+     */
+    public function search(Request $request): Response
+    {
+        $searchData = $request->validate([
+            'search' => 'required'
+        ]);
+        $post = Post::with('images')->where('title', 'like', '%'. $searchData["search"] .'%')->get();
+        if(!$post) {
+            return response("No Matching Found!", 404);
+        }
+        return response($post, 201);
     }
 }

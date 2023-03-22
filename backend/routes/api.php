@@ -33,3 +33,5 @@ Route::post('/like', [LikeController::class, 'store']);
 Route::get('/like/{user_id}/{post_id}', [LikeController::class, 'show']);
 // Comments Routes
 Route::post('/comment', [CommentController::class, 'store']);
+// Search Routes
+Route::post('/search', [PostController::class, 'search']);
