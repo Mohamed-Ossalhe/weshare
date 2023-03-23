@@ -64,7 +64,7 @@ class PostController extends Controller
         if(!$post) {
             return response(["message" => "Post Not Found!"], 404);
         }
-        return response($post, 201);
+        return response($post, 200);
     }
 
     /**
@@ -88,6 +88,7 @@ class PostController extends Controller
     public function destroy(string $id): Response
     {
         $post = Post::find($id);
+        return response('Post Deleted Successfully!', 200);
     }
 
     /**
@@ -102,6 +103,6 @@ class PostController extends Controller
         if(!$post) {
             return response("No Matching Found!", 404);
         }
-        return response($post, 201);
+        return response($post, 200);
     }
 }
