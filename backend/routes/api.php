@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\CommentController;
@@ -24,7 +25,11 @@ Route::post('/register', [AuthController::class, 'register']);
 // Login Route
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::group(['middleware' => ['auth:sanctum']], function (){
+Route::group(['middleware' => ['auth:api']], function (){
+    // get User Info Route
+    Route::get('/user/{id}', [UserController::class, 'show']);
+    // get user recent posts
+    Route::get("/recent-posts/{id}", [PostController::class, 'indexLimitThree']);
     // Category Routes
     Route::resource('category', CategoryController::class);
     // Create Post
@@ -46,7 +51,6 @@ Route::group(['middleware' => ['auth:sanctum']], function (){
 
 // Post routes
 Route::get("/posts", [PostController::class, 'index']);
-Route::get("/recent-posts", [PostController::class, 'indexLimitThree']);
 // update post route
 //Route::patch("/posts/{id}", [PostController::class, 'update']);
 // show one post

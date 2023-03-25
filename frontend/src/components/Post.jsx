@@ -8,8 +8,16 @@ import "swiper/css";
 import "swiper/css/pagination";
 import {Autoplay, Pagination} from "swiper";
 import DropDownMenu from "./DropDownMenu.jsx";
+import getCookie from "../helpers/cookie.js";
+import jwtDecode from "jwt-decode";
 
-const Post = ({ isDarkMode, id, date, title, body, images, likes, comments, reGetData }) => {
+const Post = ({ isDarkMode, id, date, title, body, images, likes, comments, reGetData, user }) => {
+    const token = getCookie('ACCESS_TOKEN');
+    let authUserId = '';
+    if(token) {
+        const decodedToken = jwtDecode(token)
+        authUserId = parseInt(decodedToken.sub)
+    }
     const [elapsedTime, setElapsedTime] = useState('')
     // show update modal
     const [ PostModel, setPostModel ] = useState(false)
@@ -53,6 +61,10 @@ const Post = ({ isDarkMode, id, date, title, body, images, likes, comments, reGe
             if (value !== 1 && value !== '') {
                 unit += 's';
             }
+            // Add "ago" to the end of the unit if the value not " "
+            if(value !== '') {
+                unit += ' ago'
+            }
             // Update the elapsed time state variable with the new value
             setElapsedTime(`${value} ${unit}`);
         }, 1000);
@@ -65,13 +77,13 @@ const Post = ({ isDarkMode, id, date, title, body, images, likes, comments, reGe
             <div href="#" className={isDarkMode ? "flex flex-col items-center bg-slate-800 border  px-2 border-gray-700 rounded-lg shadow md:max-w-xl hover:bg-slate-900" : "flex flex-col items-center bg-white border  px-2 border-gray-200 rounded-lg shadow md:max-w-xl hover:bg-gray-100"}>
                 <header className="w-full flex items-center justify-between px-2 py-2">
                     <div className="post-profile flex items-center gap-2">
-                        <img className="w-12 h-12 rounded-full shadow-lg border-2 border-secondary" src="https://randomuser.me/api/portraits/men/63.jpg" alt="Bonnie image"/>
+                        <img className="w-12 h-12 rounded-full shadow-lg border-2 border-secondary" src={user && `http://127.0.0.1:8000/storage/usersImages/${user.image}`} alt="Bonnie image"/>
                         <div className="profile-name flex flex-col">
-                            Username
+                            {user && user.name}
                             <span className="text-sm">{elapsedTime}</span>
                         </div>
                     </div>
-                    <DropDownMenu setPostModel={setPostModel} />
+                    { authUserId === user.id ? <DropDownMenu setPostModel={setPostModel} /> : '' }
                 </header>
 
                 <Swiper pagination={{dynamicBullets: true}} autoplay={true} speed={2500} loop={true} modules={[Pagination, Autoplay]} className="mySwiper w-full">
@@ -98,7 +110,7 @@ const Post = ({ isDarkMode, id, date, title, body, images, likes, comments, reGe
                     </div>
                 </div>
             </div>
-            {PostModel && <UpdatePostModel fire={PostModel} setFire={setPostModel} isDarkMode={isDarkMode} postId={id} title={title} />}
+            {PostModel && <UpdatePostModel fire={PostModel} setFire={setPostModel} isDarkMode={isDarkMode} postId={id} title={title} userId={authUserId} />}
         </div>
     )
 }

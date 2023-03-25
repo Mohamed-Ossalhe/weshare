@@ -1,7 +1,8 @@
 import {useRef} from "react";
 import axios from "axios";
+import config from "../../helpers/config.js";
 
-const CommentModal = ({ isDarkMode, postId, reGetData }) => {
+const CommentModal = ({ isDarkMode, postId, reGetData, userId }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const commentRef = useRef()
 
@@ -9,10 +10,10 @@ const CommentModal = ({ isDarkMode, postId, reGetData }) => {
         e.preventDefault()
         const commentData = {
             'content': commentRef.current.value,
-            'user_id': 1,
+            'user_id': userId,
             'post_id': postId
         }
-        await axios.post(`${API_BASE_URL}/api/comment`, commentData)
+        await axios.post(`${API_BASE_URL}/api/comment`, commentData, config())
             .then((response) => {
                 console.log(response)
                 commentRef.current.value = ''

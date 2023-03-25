@@ -1,22 +1,43 @@
 import {useEffect, useState} from "react";
 import axios from "axios";
-import {useParams} from "react-router-dom";
+import {Navigate, useParams} from "react-router-dom";
 import Navbar from "../components/navbar.jsx";
 import ProfileCard from "../components/ProfileCard.jsx";
 import Comment from "../components/Comment.jsx";
 import {Pagination, Autoplay} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
 import CommentModal from "../components/models/CommentModal.jsx";
+import config from "../helpers/config.js";
+import getCookie from "../helpers/cookie.js";
+import jwtDecode from "jwt-decode";
 
 const PostDetails = () => {
+    const token = getCookie('ACCESS_TOKEN')
+    if(!token) {
+        return <Navigate to="/login"/>
+    }
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const {title} = useParams()
     const [isDarkMode, setDarkMode] = useState(JSON.parse(localStorage.getItem('mode')))
     const [ postData, setPostData ] = useState(null)
     const [ isLoading, setIsLoading ] = useState(false)
-    const postDetails = async () => {
-        await axios.get(`${API_BASE_URL}/api/posts/` + title)
+    const [ postUser, setPostUser ] = useState(null)
+    const [ user, setUser ] = useState(null)
+
+    const fetchUserData = async () => {
+        const decodedToken = jwtDecode(token)
+        await axios.get(`${API_BASE_URL}/api/user/${decodedToken.sub}`, config())
             .then(({data}) => {
+                setUser(data)
+            }).catch((error) => {
+                console.log(error)
+            })
+    }
+    const postDetails = async () => {
+        await axios.get(`${API_BASE_URL}/api/posts/` + title, config())
+            .then(({data}) => {
+                const {user} = data
+                setPostUser(user)
                 setPostData(data)
                 setIsLoading(false)
             })
@@ -24,6 +45,7 @@ const PostDetails = () => {
     }
     useEffect(() => {
         setIsLoading(true)
+        fetchUserData()
         postDetails()
     },[])
     //console.log(postData)
@@ -33,7 +55,7 @@ const PostDetails = () => {
     }
     return (
         <div className={isDarkMode ? "profile h-screen overflow-hidden bg-slate-800 text-white": "profile h-screen overflow-hidden"}>
-            <Navbar isDarkMode={isDarkMode} onToggle={handleDarkMode}/>
+            <Navbar isDarkMode={isDarkMode} onToggle={handleDarkMode} user={user} setUser={setUser}/>
             <div className="container px-20 mt-5">
                 <div className="post-image w-full grid grid-cols-1 gap-8 md:grid-cols-4">
                     <div className="col col-span-1">
@@ -69,7 +91,7 @@ const PostDetails = () => {
                                 <span className="sr-only">Loading...</span>
                             </div>
                         }
-                        <ProfileCard isDarkMode={isDarkMode}/>
+                        {postUser && <ProfileCard isDarkMode={isDarkMode} user={postUser}/>}
                     </div>
                     <div className="col col-span-3 overflow-y-scroll max-h-[33rem] scrollbar-hide">
                         {isLoading &&
@@ -133,11 +155,11 @@ const PostDetails = () => {
                             <div className="comments mt-10">
                                 <h1 className="flex items-center justify-between w-full text-xl text-secondary">FeedBacks: <hr className="w-4/5 bg-secondary border-none h-1"/></h1>
                                 {postData && postData.comments.map((comment) => {
-                                    return <Comment key={comment.id} isDarkMode={isDarkMode} comment={comment.content} />
+                                    return <Comment key={comment.id} isDarkMode={isDarkMode} comment={comment} />
                                 })}
                             </div>
                             <div className="comment-modal">
-                                <CommentModal isDarkMode={isDarkMode} reGetData={postDetails} postId={postData && postData.id}/>
+                                <CommentModal isDarkMode={isDarkMode} reGetData={postDetails} postId={postData && postData.id} userId={user && user.id}/>
                             </div>
                         </div>
                     </div>

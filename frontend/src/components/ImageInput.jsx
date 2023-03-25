@@ -19,7 +19,7 @@ const ImageInput = ({setImage}) => {
     return (
         <div className="image-uploader flex gap-3">
             <div className="file-input">
-                <label htmlFor="images" className="text-4xl hover:text-secondary cursor-pointer transition"><i className='bx bx-image-add'></i></label>
+                <label htmlFor="images" className="text-4xl hover:text-secondary cursor-pointer transition"><i className='bx bx-image-add'></i>image</label>
                 <input type="file" onChange={onSelected} max={3} className="hidden" id="images" name="image[]" multiple accept="image/png , image/jpeg" />
             </div>
             <div className="images-preview flex gap-2">
