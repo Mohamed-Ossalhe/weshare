@@ -1,9 +1,43 @@
 import logo from '../assets/images/logo-black2.svg'
 import whiteLogo from '../assets/images/logo-white.svg'
-import {Link, NavLink} from "react-router-dom";
+import {Link, NavLink, useNavigate} from "react-router-dom";
 import SearchModal from "./models/SearchModal.jsx";
+import axios from "axios";
+import config from "../helpers/config.js";
+import getCookie from "../helpers/cookie.js";
+import {useEffect} from "react";
+import jwtDecode from "jwt-decode";
 
-const Navbar = ({ isDarkMode, onToggle }) => {
+const Navbar = ({ isDarkMode, onToggle, setUser, user }) => {
+    const navigate = useNavigate()
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+    const token = getCookie("ACCESS_TOKEN")
+    const logOut = async () => {
+        await axios.post(`${API_BASE_URL}/api/logout`, '', config())
+            .then(({data}) => {
+                const date = new Date();
+                date.setTime(date.getTime() + (60*60*1000));
+                let expires = "expires=" + date.toUTCString();
+                document.cookie = `ACCESS_TOKEN=;${expires};path=/`
+                navigate('/login')
+            }).catch((error) => {
+                console.log(error)
+            })
+    }
+    useEffect(() => {
+        const fetchUserData = async () => {
+            if(token){
+                const decodedToken = jwtDecode(token)
+                await axios.get(`${API_BASE_URL}/api/user/${decodedToken.sub}`, config())
+                    .then(({data}) => {
+                        setUser(data)
+                    }).catch((error) => {
+                        console.log(error)
+                    })
+            }
+        }
+        fetchUserData()
+    }, [])
     return (
         <div className="container mx-auto px-4 md:px-20 sticky z-10">
             
@@ -40,16 +74,16 @@ const Navbar = ({ isDarkMode, onToggle }) => {
                                 </NavLink>
                             </li>
                         </ul>
-                        <div>
+                        {token && <div>
                             <button id="dropdownUserAvatarButton" data-dropdown-toggle="dropdownAvatar" className="flex mx-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" type="button">
                                 <span className="sr-only">Open user menu</span>
-                                <img className="w-8 h-8 rounded-full border-2 border-secondary" src="https://randomuser.me/api/portraits/men/63.jpg" alt="user photo" />
+                                <img className="w-8 h-8 rounded-full border-2 border-secondary" src={user && `http://127.0.0.1:8000/storage/usersImages/${user.image}`} alt="user photo" />
                             </button>
 
                             <div id="dropdownAvatar" className={isDarkMode ? "z-10 hidden divide-y rounded-lg shadow w-44 bg-gray-700 divide-gray-600" : "z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600"}>
                                 <div className={isDarkMode ? "px-4 py-3 text-sm text-white" : "px-4 py-3 text-sm text-gray-900"}>
-                                    <div>Bonnie Green</div>
-                                    <div className="font-medium truncate">name@flowbite.com</div>
+                                    <div>{user && user.name}</div>
+                                    <div className="font-medium truncate">{user && user.name}</div>
                                 </div>
                                 <ul className={isDarkMode ? "py-2 text-sm text-gray-200" : "py-2 text-sm text-gray-700 dark:text-gray-200"} aria-labelledby="dropdownUserAvatarButton">
                                     <li>
@@ -59,11 +93,11 @@ const Navbar = ({ isDarkMode, onToggle }) => {
                                         <a href="#" className={isDarkMode ? "block px-4 py-2 hover:bg-gray-600 hover:text-white" : "block px-4 py-2 hover:bg-gray-100"}>Settings</a>
                                     </li>
                                     <li>
-                                        <a href="#" className={isDarkMode ? "block px-4 py-2 hover:bg-gray-600 hover:text-white" : "block px-4 py-2 hover:bg-gray-100"}>Earnings</a>
+                                        <p onClick={logOut} className={isDarkMode ? "block px-4 py-2 hover:bg-gray-600 hover:text-white cursor-pointer" : "block px-4 py-2 hover:bg-gray-100 cursor-pointer"}>Log Out</p>
                                     </li>
                                 </ul>
                             </div>
-                        </div>
+                        </div>}
                         <div className="dark-light">
                             <button className="theme ml-3" onClick={onToggle}>
                                 {isDarkMode ? <i className="bx bx-sun text-lg transition"></i> : <i className="bx bx-moon text-lg transition"></i>}

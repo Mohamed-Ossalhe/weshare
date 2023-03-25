@@ -1,6 +1,7 @@
 import {useRef, useState} from "react";
 import axios from "axios";
 import SearchedPosts from "../SearchedPosts.jsx";
+import config from "../../helpers/config.js";
 
 const SearchModal = ({isDarkMode}) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
@@ -11,9 +12,13 @@ const SearchModal = ({isDarkMode}) => {
         const searchData = {
             'search': searchValue.current.value
         }
-        await axios.post(`${API_BASE_URL}/api/search`, searchData, {headers:{'Access-Control-Allow-Origin': '*'}})
+        await axios.post(`${API_BASE_URL}/api/posts/search`, searchData, config())
             .then(({data}) => {
-                setSearchPosts(data)
+                if(data.length !== 0) {
+                    setSearchPosts(data)
+                }else {
+                    setSearchPosts("No Post Found")
+                }
             }).catch((error) => {
                 console.log(error)
             })

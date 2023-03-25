@@ -2,22 +2,20 @@ import ImageInput from "../ImageInput.jsx";
 import {useEffect, useRef, useState} from "react";
 import axios from "axios";
 import CategoryModal from "./CategoryModal.jsx";
+import config from "../../helpers/config.js";
 
-const CreatePostModel = ({ fire, setFire, isDarkMode }) => {
+const CreatePostModel = ({ fire, setFire, isDarkMode, userId }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const titleRef = useRef()
     const descriptionRef = useRef()
-    const categoryRef = useRef()
     const [ images, setImage ] = useState([])
-    const userId = 1
     const [ errors, setErrors ] = useState(null)
     const [ categories, setCategories ] = useState([])
     const [ categoriesSelected, setCategoriesSelected ] = useState([])
     const [ isCalled, setCall ] = useState(false)
-
     useEffect(() => {
         const getCategories = async () => {
-            await axios.get(`${API_BASE_URL}/api/category`)
+            await axios.get(`${API_BASE_URL}/api/category`, config())
                 .then(({data}) => {
                     setCategories(data)
                 }).catch((error) => {
@@ -49,9 +47,7 @@ const CreatePostModel = ({ fire, setFire, isDarkMode }) => {
         }
         console.log(categoriesSelected)
         console.log(formData)
-        await axios.post(`${API_BASE_URL}/api/posts`, formData, {headers: {
-                'Content-Type': 'multipart/form-data'
-            }})
+        await axios.post(`${API_BASE_URL}/api/posts`, formData, config())
             .then((response) => {
                 console.log(response)
                 setFire(false)
@@ -67,7 +63,7 @@ const CreatePostModel = ({ fire, setFire, isDarkMode }) => {
         return (
         <div id="staticModal" data-modal-backdrop="static" tabIndex="-1" className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center bg-black/30 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full">
             <div className="relative flex items-center justify-center w-full h-full max-w-2xl md:h-auto">
-                <form method="post" onSubmit={submitForm} className={isDarkMode ? "relative rounded-lg shadow bg-gray-700 w-full" : "relative bg-white rounded-lg shadow w-full"}>
+                <form method="post" onSubmit={submitForm} className={isDarkMode ? "relative rounded-lg shadow bg-gray-700 w-full" : "relative bg-white rounded-lg shadow w-full"} encType="multipart/form-data">
                     <div className={isDarkMode ? "flex items-start justify-between p-4 border-b rounded-t border-gray-600" : "flex items-start justify-between p-4 border-b rounded-t"}>
                         <h3 className={isDarkMode ? "text-xl font-semibold text-white" : "text-xl font-semibold text-gray-900"}>
                             New Idea

@@ -24,7 +24,7 @@ class AuthController extends Controller
             'email' => $fields['email'],
             'password' => bcrypt($fields['password'])]);
 
-        $token = $user->createToken('ACCESS_TOKEN')->plainTextToken;
+        $token = $this->createToken($user);
         return response([$user, $token], 201);
     }
 
@@ -38,13 +38,24 @@ class AuthController extends Controller
         if(!$user || !Hash::check($fields['password'], $user->password)) {
             return response(['message' => 'Incorrect Credentials!'], 401);
         }
-        $token = $user->createToken('ACCESS_TOKEN')->plainTextToken;
-        return response([$user, $token], 200);
+        if(!$token = auth()->attempt($fields)) {
+            return response(['error' => 'Unauthorized'], 401);
+        }
+        $jwt = $this->createToken($token);
+        return response([$user, $jwt], 200);
     }
 
     public function logout(Request $request) : Response
     {
         auth()->user()->tokens()->delete();
         return response('You Logged Out!', 200);
+    }
+
+    protected function createToken($token) : Response
+    {
+        return response([
+            'access_token' => $token,
+            'token_type' => 'bearer'
+        ], 200);
     }
 }

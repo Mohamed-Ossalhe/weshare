@@ -1,5 +1,7 @@
 import axios from "axios";
 import {useRef} from "react";
+import config from "../../helpers/config.js";
+
 
 const CategoryModal = ({isCalled, setCall, isDarkMode}) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
@@ -9,7 +11,7 @@ const CategoryModal = ({isCalled, setCall, isDarkMode}) => {
         const data = {
             'title': categoryTitleRef.current.value
         }
-        await axios.post(`${API_BASE_URL}/api/category`, data)
+        await axios.post(`${API_BASE_URL}/api/category`, data, config())
             .then((response) => {
                 console.log(response)
                 setCall(false)

@@ -5,16 +5,23 @@ import Post from "../components/Post"
 import ProfileCard from "../components/ProfileCard"
 import SmallPost from "../components/SmallPost"
 import axios from "axios";
-import {Link} from "react-router-dom";
+import {Link, Navigate} from "react-router-dom";
+import config from "../helpers/config.js";
+import getCookie from "../helpers/cookie.js";
 
 const Home = () => {
+    const token = getCookie('ACCESS_TOKEN')
+    if(!token) {
+        return <Navigate to="/login"/>
+    }
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const [ posts, setPosts ] = useState([])
     const [ recentPosts, setRecentPosts ] = useState([])
     const [ isDarkMode, setDarkMode ] = useState(JSON.parse(localStorage.getItem('mode')))
     const [ isLoading, setLoading ] = useState(false)
+    const [ user, setUser ] = useState(null)
+    const date = new Date()
     const handleDarkMode = () => {
-        //setDarkMode(!isDarkMode)
         if(!localStorage.getItem("mode")) {
             localStorage.setItem('mode', JSON.stringify(false))
         }
@@ -23,7 +30,7 @@ const Home = () => {
     }
 
     const fetchAllPosts = async () => {
-        await axios.get( `${API_BASE_URL}/api/posts`)
+        await axios.get( `${API_BASE_URL}/api/posts`, config())
             .then((response) => {
                 const {data} = response
                 setPosts(data)
@@ -33,24 +40,30 @@ const Home = () => {
             });
     }
     const fetchRecentPosts = async () => {
-        await axios.get(`${API_BASE_URL}/api/recent-posts`)
-            .then((response) => {
-                const {data} = response
-                setRecentPosts(data)
-                setLoading(false)
-            }).catch((error) => {
-                console.log(error)
-            })
+        if (user){
+            const response = await axios.get(`${API_BASE_URL}/api/recent-posts/${user.id}`, config())
+                .then(({data}) => {
+                    setRecentPosts(data)
+                    setLoading(false)
+                }).catch((error) => {
+                    console.log(error)
+                })
+        }
     }
 
     useEffect(() => {
         setLoading(true)
         fetchAllPosts()
         fetchRecentPosts()
+        const refresh = setInterval(() => {
+            fetchAllPosts()
+            fetchRecentPosts()
+        }, 10000)
+        return () => clearInterval(refresh)
     }, [])
     return (
         <div className={isDarkMode ? "home-page h-screen relative overflow-hidden bg-slate-800 text-white": "home-page h-screen relative overflow-hidden"}>
-            <Navbar isDarkMode={isDarkMode} onToggle={handleDarkMode} />
+            <Navbar isDarkMode={isDarkMode} onToggle={handleDarkMode} setUser={setUser} user={user} />
             <div className="content container mx-auto px-4 md:px-20 grid gap-8 mt-3 grid-cols-1 md:grid-cols-4 h-full relative w-full">
                 <div className={isDarkMode ? "col h-fit col-span-1 border border-gray-700 rounded px-2 hidden md:block pb-2" : "col h-fit col-span-1 border border-gray-200 rounded px-2 pb-2 hidden md:block"}>
                     <h2 className="text-md mb-2 font-medium">Your Recent Post</h2>
@@ -74,7 +87,7 @@ const Home = () => {
                     })}
                 </div>
                 <div className="col col-span-2">
-                    <PostInput isDarkMode={isDarkMode}/>
+                    <PostInput isDarkMode={isDarkMode} userImage={user && user.image} userId={user && user.id}/>
                     <div className="posts scrollbar-hide max-h-[37rem] md:max-h-[30rem] pb-10 flex flex-col gap-4 overflow-x-hidden overflow-y-scroll mt-2">
                         {isLoading && <div className={isDarkMode ? "border border-gray-700 shadow rounded-md p-4 max-w-full w-full mx-auto" : "border border-gray-200 shadow rounded-md p-4 max-w-full w-full mx-auto"}>
                             <div className="animate-pulse flex space-x-4">
@@ -93,12 +106,13 @@ const Home = () => {
                         </div>}
                         {posts && posts.map((post) => {
                             const postDate = new Date(post.updated_at)
-                            return <Post key={post.id} reGetData={fetchAllPosts} isDarkMode={isDarkMode} id={post.id} date={postDate} title={post.title} body={post.description} images={post.images} likes={post.likes} comments={post.comments}/>
+                            return <Post key={post.id} reGetData={fetchAllPosts} isDarkMode={isDarkMode} id={post.id} user={post.user} date={postDate} title={post.title} body={post.description} images={post.images} likes={post.likes} comments={post.comments}/>
                         })}
                     </div>
                 </div>
                 <div className="col h-full col-span-1 hidden md:block">
-                    <ProfileCard isDarkMode={isDarkMode} />
+                    <ProfileCard isDarkMode={isDarkMode} user={user} />
+                    <p className="text-gray-400 text-xs my-3">Copyright &copy; 2022 - {date.getFullYear()} | All Rights Reserved | Created and Developed By Mohamed OSSALHE</p>
                 </div>
             </div>
         </div>

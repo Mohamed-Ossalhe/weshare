@@ -15,7 +15,10 @@ class Post extends Model
         'category_id',
         'image',
     ];
-
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
     public function category() {
         return $this->belongsToMany(Category::class,'post_categories', 'post_id', 'category_id');
     }

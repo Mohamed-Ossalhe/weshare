@@ -1,6 +1,3 @@
-import {Autoplay, Pagination} from "swiper";
-import {Swiper, SwiperSlide} from "swiper/react";
-
 const SmallPost = ({isDarkMode, props}) => {
     return (
         <div className={isDarkMode ? "mb-2 border rounded border-gray-700" : "mb-2 border rounded"}>
