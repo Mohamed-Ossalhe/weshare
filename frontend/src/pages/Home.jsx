@@ -1,6 +1,5 @@
 import {useEffect, useState} from "react"
 import PostInput from "../components/AddPostInput"
-import Navbar from "../components/navbar"
 import Post from "../components/Post"
 import ProfileCard from "../components/ProfileCard"
 import SmallPost from "../components/SmallPost"
@@ -9,7 +8,7 @@ import {Link, Navigate} from "react-router-dom";
 import config from "../helpers/config.js";
 import getCookie from "../helpers/cookie.js";
 
-const Home = () => {
+const Home = ({user, isDarkMode}) => {
     const token = getCookie('ACCESS_TOKEN')
     if(!token) {
         return <Navigate to="/login"/>
@@ -17,17 +16,8 @@ const Home = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const [ posts, setPosts ] = useState([])
     const [ recentPosts, setRecentPosts ] = useState([])
-    const [ isDarkMode, setDarkMode ] = useState(JSON.parse(localStorage.getItem('mode')))
     const [ isLoading, setLoading ] = useState(false)
-    const [ user, setUser ] = useState(null)
     const date = new Date()
-    const handleDarkMode = () => {
-        if(!localStorage.getItem("mode")) {
-            localStorage.setItem('mode', JSON.stringify(false))
-        }
-        setDarkMode(!(JSON.parse(localStorage.getItem('mode'))))
-        localStorage.setItem('mode',JSON.stringify(!isDarkMode))
-    }
 
     const fetchAllPosts = async () => {
         await axios.get( `${API_BASE_URL}/api/posts`, config())
@@ -61,9 +51,9 @@ const Home = () => {
         }, 10000)
         return () => clearInterval(refresh)
     }, [])
+    console.log(posts)
     return (
         <div className={isDarkMode ? "home-page h-screen relative overflow-hidden bg-slate-800 text-white": "home-page h-screen relative overflow-hidden"}>
-            <Navbar isDarkMode={isDarkMode} onToggle={handleDarkMode} setUser={setUser} user={user} />
             <div className="content container mx-auto px-4 md:px-20 grid gap-8 mt-3 grid-cols-1 md:grid-cols-4 h-full relative w-full">
                 <div className={isDarkMode ? "col h-fit col-span-1 border border-gray-700 rounded px-2 hidden md:block pb-2" : "col h-fit col-span-1 border border-gray-200 rounded px-2 pb-2 hidden md:block"}>
                     <h2 className="text-md mb-2 font-medium">Your Recent Post</h2>

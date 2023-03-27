@@ -43,7 +43,7 @@ const SearchModal = ({isDarkMode}) => {
                            placeholder="Search Posts..." required />
                 </div>
             </form>
-            {searchPosts && <SearchedPosts isDarkMode={isDarkMode} posts={searchPosts}/>}
+            {searchPosts && <SearchedPosts isDarkMode={isDarkMode} posts={searchPosts} setSearchPosts={setSearchPosts}/>}
         </div>
     )
 }

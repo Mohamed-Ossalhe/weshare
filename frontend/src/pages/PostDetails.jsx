@@ -1,7 +1,6 @@
 import {useEffect, useState} from "react";
 import axios from "axios";
 import {Navigate, useParams} from "react-router-dom";
-import Navbar from "../components/navbar.jsx";
 import ProfileCard from "../components/ProfileCard.jsx";
 import Comment from "../components/Comment.jsx";
 import {Pagination, Autoplay} from "swiper";
@@ -11,14 +10,13 @@ import config from "../helpers/config.js";
 import getCookie from "../helpers/cookie.js";
 import jwtDecode from "jwt-decode";
 
-const PostDetails = () => {
+const PostDetails = ({isDarkMode}) => {
     const token = getCookie('ACCESS_TOKEN')
     if(!token) {
         return <Navigate to="/login"/>
     }
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const {title} = useParams()
-    const [isDarkMode, setDarkMode] = useState(JSON.parse(localStorage.getItem('mode')))
     const [ postData, setPostData ] = useState(null)
     const [ isLoading, setIsLoading ] = useState(false)
     const [ postUser, setPostUser ] = useState(null)
@@ -49,13 +47,8 @@ const PostDetails = () => {
         postDetails()
     },[])
     //console.log(postData)
-    const handleDarkMode = () => {
-        setDarkMode(!isDarkMode)
-        localStorage.setItem('mode', JSON.stringify(!isDarkMode))
-    }
     return (
-        <div className={isDarkMode ? "profile h-screen overflow-hidden bg-slate-800 text-white": "profile h-screen overflow-hidden"}>
-            <Navbar isDarkMode={isDarkMode} onToggle={handleDarkMode} user={user} setUser={setUser}/>
+        <div className={isDarkMode ? "profile bg-slate-800 text-white": "profile"}>
             <div className="container px-20 mt-5">
                 <div className="post-image w-full grid grid-cols-1 gap-8 md:grid-cols-4">
                     <div className="col col-span-1">
