@@ -52,7 +52,7 @@ class PostController extends Controller
             $filename = explode("/", $file);
             $postImages = Image::create(['content' => $filename[2], 'post_id' => $post->id]);
         }
-        return response($formData, 201);
+        return response('Post Created Successfully!', 201);
     }
 
     /**
@@ -88,6 +88,7 @@ class PostController extends Controller
     public function destroy(string $id): Response
     {
         $post = Post::find($id);
+        $post->delete();
         return response('Post Deleted Successfully!', 200);
     }
 

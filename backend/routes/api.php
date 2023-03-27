@@ -28,6 +28,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::group(['middleware' => ['auth:api']], function (){
     // get User Info Route
     Route::get('/user/{id}', [UserController::class, 'show']);
+    // Delete User Profile
+    Route::delete('/user/{id}', [UserController::class, 'destroy']);
     // get user recent posts
     Route::get("/recent-posts/{id}", [PostController::class, 'indexLimitThree']);
     // Category Routes
@@ -36,6 +38,8 @@ Route::group(['middleware' => ['auth:api']], function (){
     Route::post("/posts",[PostController::class, 'store']);
     // update post
     Route::patch("/posts/{id}", [PostController::class, 'update']);
+    // Delete Post
+    Route::delete('/posts/{id}', [PostController::class, 'destroy']);
     // show one post
     Route::get("/posts/{title}", [PostController::class, 'show']);
     // Like post Routes

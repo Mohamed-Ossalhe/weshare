@@ -3,6 +3,7 @@ import {useEffect, useRef, useState} from "react";
 import axios from "axios";
 import CategoryModal from "./CategoryModal.jsx";
 import config from "../../helpers/config.js";
+import {toast, ToastContainer} from "react-toastify";
 
 const CreatePostModel = ({ fire, setFire, isDarkMode, userId }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
@@ -35,8 +36,6 @@ const CreatePostModel = ({ fire, setFire, isDarkMode, userId }) => {
     }
     const submitForm = async (e) => {
         e.preventDefault()
-        //console.log(categoriesSelected)
-        //console.log(images)
         const formData = new FormData()
         formData.append('title', titleRef.current.value)
         formData.append('description', descriptionRef.current.value)
@@ -48,9 +47,18 @@ const CreatePostModel = ({ fire, setFire, isDarkMode, userId }) => {
         console.log(categoriesSelected)
         console.log(formData)
         await axios.post(`${API_BASE_URL}/api/posts`, formData, config())
-            .then((response) => {
-                console.log(response)
+            .then(({data}) => {
                 setFire(false)
+                toast.success(`${data}`, {
+                    position: "top-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: false,
+                    draggable: false,
+                    progress: undefined,
+                    theme: isDarkMode ? "dark" : "light",
+                });
             })
             .catch((response) => {
                 console.log(response)

@@ -3,14 +3,21 @@ import {useEffect, useState} from "react";
 import SmallPost from "../components/SmallPost.jsx";
 import axios from "axios";
 import config from "../helpers/config.js";
+import getCookie from "../helpers/cookie.js";
+import {Navigate} from "react-router-dom";
+import {toast, ToastContainer} from "react-toastify";
 
-const Profile = () => {
+const Profile = ({user}) => {
+    const token = getCookie('ACCESS_TOKEN')
+    if(!token) {
+        return <Navigate to={"/"}/>
+    }
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const [isDarkMode, setDarkMode] = useState(JSON.parse(localStorage.getItem('mode')))
     const [ recentPosts, setRecentPosts ] = useState([])
     const [ isLoading, setLoading ] = useState(true)
-    const [ user, setUser ] = useState(null)
     const fetchRecentPosts = async () => {
-        const response = await axios.get(`http://127.0.0.1:8000/api/recent-posts/${user.id}`, config())
+        const response = await axios.get(`${API_BASE_URL}/api/recent-posts/${user.id}`, config())
             .then((response) => {
                 const {data} = response
                 return data
@@ -19,19 +26,46 @@ const Profile = () => {
             })
         return response
     }
-    useEffect(() => {
-        fetchRecentPosts().then((response) => {
-            setRecentPosts(response)
-            setLoading(false)
-        })
-    }, [])
-    const handleDarkMode = () => {
-        setDarkMode(!isDarkMode)
-        localStorage.setItem('mode', JSON.stringify(!isDarkMode))
+
+    const deleteProfile = async () => {
+        await axios.delete(`${API_BASE_URL}/api/user/${user.id}`, config())
+            .then(({data}) => {
+                toast.success(`${data}`, {
+                    position: "top-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: false,
+                    draggable: false,
+                    progress: undefined,
+                    theme: isDarkMode ? "dark" : "light",
+                });
+            }).catch(error => {
+                console.log(error)
+            })
     }
+    useEffect(() => {
+        if(user) {
+            fetchRecentPosts().then((response) => {
+                setRecentPosts(response)
+                setLoading(false)
+            })
+        }
+    }, [])
     return (
         <div className={isDarkMode ? "profile h-screen overflow-hidden bg-slate-800 text-white" : "profile h-screen overflow-hidden"}>
-            <Navbar isDarkMode={isDarkMode} onToggle={handleDarkMode} setUser={setUser} user={user}/>
+            <ToastContainer
+                position="top-right"
+                autoClose={2000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss={false}
+                draggable={false}
+                pauseOnHover={false}
+                theme="light"
+            />
             <div className={isDarkMode ? "profile-container container flex flex-col gap-4 mx-auto px-4 md:px-20 mt-3 max-h-full bg-slate-800 text-white relative w-full overflow-y-scroll md:overflow-y-hidden" : "profile-container container flex flex-col gap-4 mx-auto px-4 md:px-20 mt-3 max-h-full relative w-full overflow-y-scroll md:overflow-y-hidden"}>
                 <div className="profile-header flex items-center justify-between flex-col md:flex-row gap-8 border rounded px-4 py-5">
                     <div className="profile-info flex flex-col items-center md:flex-row gap-8">
@@ -62,7 +96,7 @@ const Profile = () => {
                             <i className='bx bx-edit-alt'></i>
                             Edit Profile
                         </button>
-                        <button className="py-2 px-4 border rounded flex gap-3 items-center bg-red-500 text-white text-md">
+                        <button className="py-2 px-4 border rounded flex gap-3 items-center bg-red-500 text-white text-md" onClick={()=>deleteProfile()}>
                             <i className='bx bx-minus-circle'></i>
                             Delete Profile
                         </button>

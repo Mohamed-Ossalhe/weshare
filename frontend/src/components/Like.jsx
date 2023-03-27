@@ -36,9 +36,8 @@ const Like = ({isDarkMode, likes, postId, reGetData}) => {
         if(token) {
             await axios.post(`${API_BASE_URL}/api/like`, data, config())
                 .then((response) => {
-                    console.log(response)
-                    reGetData()
                     setToggle(!toggle)
+                    reGetData()
                 }).catch((error) => {
                     console.log(error)
                 })

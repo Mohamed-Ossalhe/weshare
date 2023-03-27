@@ -10,8 +10,14 @@ import {Autoplay, Pagination} from "swiper";
 import DropDownMenu from "./DropDownMenu.jsx";
 import getCookie from "../helpers/cookie.js";
 import jwtDecode from "jwt-decode";
+import timeCalculator from "../helpers/timeCalculator.js";
+import axios from "axios";
+import config from "../helpers/config.js";
+import {toast, ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.min.css';
 
 const Post = ({ isDarkMode, id, date, title, body, images, likes, comments, reGetData, user }) => {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const token = getCookie('ACCESS_TOKEN');
     let authUserId = '';
     if(token) {
@@ -22,58 +28,40 @@ const Post = ({ isDarkMode, id, date, title, body, images, likes, comments, reGe
     // show update modal
     const [ PostModel, setPostModel ] = useState(false)
 
+    const deletePost = async () => {
+        await axios.delete(`${API_BASE_URL}/api/posts/${id}`, config())
+            .then(({data}) => {
+                toast.info(`${data}`, {
+                    position: "top-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: false,
+                    draggable: false,
+                    progress: undefined,
+                    theme: isDarkMode ? "dark" : "light",
+                });
+            }).catch((error) => {
+                console.log(error)
+            })
+    }
     useEffect(() => {
-        // Update the elapsed time every minute
-        const intervalId = setInterval(() => {
-            // Get the current date and time
-            const now = new Date();
-
-            // Post Date
-            //const postDate = new Date(date)
-
-            // Calculate the difference in milliseconds between the current date/time and the post date/time
-            const timeDiff = now.getTime() - date.getTime();
-
-            // Convert the time difference to seconds, minutes, hours, days, etc. as needed
-            const secondsDiff = Math.floor(timeDiff / 1000);
-            const minutesDiff = Math.floor(timeDiff / 1000 / 60);
-            const hoursDiff = Math.floor(timeDiff / 1000 / 60 / 60);
-            const daysDiff = Math.floor(timeDiff / 1000 / 60 / 60 / 24);
-
-            // Choose the appropriate time unit to display
-            let unit = '';
-            let value = 0;
-            if (daysDiff > 0) {
-                unit = 'day';
-                value = daysDiff;
-            } else if (hoursDiff > 0) {
-                unit = 'hour';
-                value = hoursDiff;
-            } else if (minutesDiff > 0) {
-                unit = 'minute';
-                value = minutesDiff;
-            } else {
-                unit = 'Just now';
-                value = '';
-            }
-
-            // Add "s" to the end of the unit if the value is not 1
-            if (value !== 1 && value !== '') {
-                unit += 's';
-            }
-            // Add "ago" to the end of the unit if the value not " "
-            if(value !== '') {
-                unit += ' ago'
-            }
-            // Update the elapsed time state variable with the new value
-            setElapsedTime(`${value} ${unit}`);
-        }, 1000);
-
-        // Clean up the interval when the component unmounts
-        return () => clearInterval(intervalId);
+        timeCalculator(date, setElapsedTime)
     }, []);
     return (
         <div className="w-full post" id={id}>
+            <ToastContainer
+                position="top-right"
+                autoClose={2000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss={false}
+                draggable={false}
+                pauseOnHover={false}
+                theme="light"
+            />
             <div href="#" className={isDarkMode ? "flex flex-col items-center bg-slate-800 border  px-2 border-gray-700 rounded-lg shadow md:max-w-xl hover:bg-slate-900" : "flex flex-col items-center bg-white border  px-2 border-gray-200 rounded-lg shadow md:max-w-xl hover:bg-gray-100"}>
                 <header className="w-full flex items-center justify-between px-2 py-2">
                     <div className="post-profile flex items-center gap-2">
@@ -83,7 +71,7 @@ const Post = ({ isDarkMode, id, date, title, body, images, likes, comments, reGe
                             <span className="text-sm">{elapsedTime}</span>
                         </div>
                     </div>
-                    { authUserId === user.id ? <DropDownMenu setPostModel={setPostModel} /> : '' }
+                    { authUserId === user.id ? <DropDownMenu setPostModel={setPostModel} deletePost={deletePost} /> : '' }
                 </header>
 
                 <Swiper pagination={{dynamicBullets: true}} autoplay={true} speed={2500} loop={true} modules={[Pagination, Autoplay]} className="mySwiper w-full">
