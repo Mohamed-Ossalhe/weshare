@@ -1,11 +1,12 @@
 import logo from '../assets/images/logo-black2.svg'
 import logoWhite from '../assets/images/logo-white.svg'
 import { Link } from 'react-router-dom';
-import { useRef } from 'react';
+import {useRef, useState} from 'react';
 import axios from "axios";
 
 const SignupPage = ({isDarkMode}) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+    const [ errors, setErrors ] = useState(null)
     const nameRef = useRef()
     const imageRef = useRef()
     const emailRef = useRef()
@@ -35,8 +36,14 @@ const SignupPage = ({isDarkMode}) => {
                 date.setTime(date.getTime() + (7*24*60*60*1000));
                 let expires = "expires=" + date.toUTCString();
                 document.cookie = `ACCESS_TOKEN=${token};${expires};path=/`
-            }).catch((error) => {
-                console.log(error)
+            }).catch(({response}) => {
+                const {message, errors} = response.data
+                if(errors) {
+                    setErrors(errors)
+                }else {
+                    setErrors({message: message})
+                }
+                console.log(response.data)
             })
 
         //console.log(registerData)
@@ -53,25 +60,31 @@ const SignupPage = ({isDarkMode}) => {
                 <div className="form-wrapper md:col-span-2 flex flex-col justify-center gap-4 pr-8">
                     <h2 className='flex items-center flex-col md:flex-row'>New to <span><img src={isDarkMode ? logoWhite : logo} alt="weshare" className='w-22 mx-5 my-5 md:my-0' /></span>Create Account & Inspire the world.</h2>
                     <form className="w-full" onSubmit={handleSubmit} method="POST" encType="multipart/form-data">
+                        {errors && errors.message && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.message}</p>}
                         <div className="mb-6">
                             <label htmlFor="fullName" className="block mb-2 text-sm font-medium">Full Name</label>
                             <input type="text" id="fullName" ref={nameRef} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ex.:Jhon Doe" required />
+                            {errors && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.name}</p>}
                         </div>
                         <div className="mb-6"> 
                             <label className="block mb-2 text-sm font-medium" htmlFor="multiple_files">Upload Your Image</label>
-                            <input className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="multiple_files" type="file" ref={imageRef} accept="image/png, image/jpeg" />
+                            <input className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="multiple_files" type="file" ref={imageRef} accept="image/png, image/jpeg" required />
+                            {errors && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.image}</p>}
                         </div>
                         <div className="mb-6">
                             <label htmlFor="email" className="block mb-2 text-sm font-medium">Your email</label>
                             <input type="email" id="email" ref={emailRef} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@flowbite.com" required />
+                            {errors && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.email}</p>}
                         </div>
                         <div className="mb-6">
                             <label htmlFor="password" className="block mb-2 text-sm font-medium">Your password</label>
                             <input type="password" id="password" ref={passwordRef} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
+                            {errors && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.password}</p>}
                         </div>
                         <div className="mb-6">
                             <label htmlFor="password_confirm" className="block mb-2 text-sm font-medium">Confirm Your password</label>
                             <input type="password" id="password_confirm" ref={passwordConfirmationRef} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
+                            {errors && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.password}</p>}
                         </div>
                         <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
                     </form>

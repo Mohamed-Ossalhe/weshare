@@ -16,7 +16,7 @@ class PostController extends Controller
     public function index(): Response
     {
         $posts = Post::with('user', 'images', 'likes', 'comments')->orderBy('updated_at', 'desc')->get();
-        return response($posts, 201);
+        return response($posts, 200);
     }
 
     /**
@@ -27,7 +27,7 @@ class PostController extends Controller
         $posts = Post::with('images')->where('user_id', 'like', $id)->orderBy('updated_at', 'desc')
             ->take(3)
             ->get();
-        return response($posts, 201);
+        return response($posts, 200);
     }
 
     /**

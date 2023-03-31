@@ -15,7 +15,6 @@ const Home = ({user, isDarkMode}) => {
     }
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const [ posts, setPosts ] = useState([])
-    const [ recentPosts, setRecentPosts ] = useState([])
     const [ isLoading, setLoading ] = useState(false)
     const date = new Date()
 
@@ -29,29 +28,29 @@ const Home = ({user, isDarkMode}) => {
                 console.log(error)
             });
     }
-    const fetchRecentPosts = async () => {
-        if (user){
-            const response = await axios.get(`${API_BASE_URL}/api/recent-posts/${user.id}`, config())
-                .then(({data}) => {
-                    setRecentPosts(data)
-                    setLoading(false)
-                }).catch((error) => {
-                    console.log(error)
-                })
-        }
-    }
+    // const fetchRecentPosts = async () => {
+    //     if (user){
+    //         const response = await axios.get(`${API_BASE_URL}/api/recent-posts/${user.id}`, config())
+    //             .then(({data}) => {
+    //                 setRecentPosts(data)
+    //                 setLoading(false)
+    //             }).catch((error) => {
+    //                 console.log(error)
+    //             })
+    //     }
+    // }
 
     useEffect(() => {
         setLoading(true)
         fetchAllPosts()
-        fetchRecentPosts()
+        //fetchRecentPosts()
         const refresh = setInterval(() => {
             fetchAllPosts()
-            fetchRecentPosts()
+            //fetchRecentPosts()
         }, 10000)
         return () => clearInterval(refresh)
     }, [])
-    console.log(posts)
+    const filterPosts = posts.filter((filterdPost) => filterdPost.user_id === user.id)
     return (
         <div className={isDarkMode ? "home-page h-screen relative overflow-hidden bg-slate-800 text-white": "home-page h-screen relative overflow-hidden"}>
             <div className="content container mx-auto px-4 md:px-20 grid gap-8 mt-3 grid-cols-1 md:grid-cols-4 h-full relative w-full">
@@ -72,7 +71,7 @@ const Home = ({user, isDarkMode}) => {
                             </div>
                         </div>
                     </div>}
-                    {recentPosts && recentPosts.map((recentPost) => {
+                    {filterPosts && filterPosts.map((recentPost) => {
                         return <Link key={recentPost.id} to={`/post/${recentPost.title}`}><SmallPost isDarkMode={isDarkMode} props={recentPost}/></Link>
                     })}
                 </div>

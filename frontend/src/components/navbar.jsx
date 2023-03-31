@@ -24,18 +24,18 @@ const Navbar = ({ isDarkMode, onToggle, setUser, user }) => {
                 console.log(error)
             })
     }
-    useEffect(() => {
-        const fetchUserData = async () => {
-            if(token){
-                const decodedToken = jwtDecode(token)
-                await axios.get(`${API_BASE_URL}/api/user/${decodedToken.sub}`, config())
-                    .then(({data}) => {
-                        setUser(data)
-                    }).catch((error) => {
-                        console.log(error)
-                    })
-            }
+    const fetchUserData = async () => {
+        if(token){
+            const decodedToken = jwtDecode(token)
+            await axios.get(`${API_BASE_URL}/api/user/${decodedToken.sub}`, config())
+                .then(({data}) => {
+                    setUser(data)
+                }).catch((error) => {
+                    console.log(error)
+                })
         }
+    }
+    useEffect(() => {
         fetchUserData()
     }, [])
     return (
