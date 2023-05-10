@@ -15,11 +15,16 @@ const timeCalculator = (date, setTime) => {
         const minutesDiff = Math.floor(timeDiff / 1000 / 60);
         const hoursDiff = Math.floor(timeDiff / 1000 / 60 / 60);
         const daysDiff = Math.floor(timeDiff / 1000 / 60 / 60 / 24);
+        const monthsDiff = Math.floor(timeDiff / 1000 / 60 / 60 / 24 / 30)
 
         // Choose the appropriate time unit to display
         let unit = '';
         let value = 0;
-        if (daysDiff > 0) {
+        if(monthsDiff > 0){
+            unit = 'month';
+            value = monthsDiff
+        }
+        else if (daysDiff > 0) {
             unit = 'day';
             value = daysDiff;
         } else if (hoursDiff > 0) {
